@@ -241,4 +241,27 @@ jQuery(document).on('submit', '.b24-form', function() {
   }
   });
 
+  var _ctreq_b24 = function(data) {
+      var sid = 46700;
+      var request = window.ActiveXObject?new ActiveXObject("Microsoft.XMLHTTP"):new XMLHttpRequest();
+      var post_data = Object.keys(data).reduce(function(a,k){if(!!data[k]){a.push(k+'='+encodeURIComponent(data[k]));}return a},[]).join('&');
+      var url = 'https://api.calltouch.ru/calls-service/RestAPI/'+sid+'/requests/orders/register/';
+      request.open("POST", url, true); request.setRequestHeader('Content-Type','application/x-www-form-urlencoded'); request.send(post_data);
+  };
+  window.addEventListener('b24:form:submit', function(e){
+      var form = event.detail.object;
+      if (form.validated){
+          var fio = ''; var phone = ''; var email = ''; var comment = '';
+          form.getFields().forEach(function(el){
+              if(el.name=='LEAD_NAME' || el.name=='CONTACT_NAME'){ fio = el.value(); }
+              if(el.name=='LEAD_PHONE' || el.name=='CONTACT_PHONE'){ phone = el.value(); }
+              if(el.name=='LEAD_EMAIL' || el.name=='CONTACT_EMAIL'){ email = el.value(); }
+              if(el.name=='LEAD_COMMENTS' || el.name=='DEAL_COMMENTS '){ comment = el.value(); }
+          });
+          var sub = 'Заявка с формы Bitrix24 ' + location.hostname;
+          var ct_data = {fio: fio, phoneNumber: phone, email: email, comment: comment, subject: sub, requestUrl: location.href, sessionId: window.call_value};
+          console.log(ct_data);
+          if (!!phone || !!email) _ctreq_b24(ct_data);
+      }
+  });
 
